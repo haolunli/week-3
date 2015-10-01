@@ -16,7 +16,6 @@
     
         circle {
             fill-opacity: 0;
-            stroke: red;
             stroke-width: 5px;
         }
 	</style>
@@ -64,32 +63,43 @@
                 
                 circles.enter()
                 .append("circle")
-                .attr("r", 10);
+                //.attr("r", 10);
+                
+                function update() {
+                var bounds = path.bounds(data),
+                topLeft = bounds[0],
+                bottomRight = bounds[1];
+                
+                var buffer = 50;
+                
+                svg .attr("width", bottomRight[0] - topLeft[0] + (buffer * 2))
+                .attr("height", bottomRight[1] - topLeft[1] + (buffer * 2))
+                .style("left", (topLeft[0] - buffer) + "px")
+                .style("top", (topLeft[1] - buffer) + "px");
+                
+                g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
+                
+                circles
+                .attr("cx", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
+                .attr("cy", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; })
+                .attr("r",function(d) {return 0.0001*d.properties.price})
+                .attr("stroke",function(d) {if(d.properties.price>50000) {
+                                            return "red";
+                                            } else {
+                                            return "green";
+                                            }
+                                            });
+                //}])
+                
+                };
+                
+            
+                
+                update();
+                map.on("viewreset", update);
                 
                 });
         
-        function update() {
-            var bounds = path.bounds(data),
-            topLeft = bounds[0],
-            bottomRight = bounds[1];
-            
-            var buffer = 50;
-            
-            svg .attr("width", bottomRight[0] - topLeft[0] + (buffer * 2))
-            .attr("height", bottomRight[1] - topLeft[1] + (buffer * 2))
-            .style("left", (topLeft[0] - buffer) + "px")
-            .style("top", (topLeft[1] - buffer) + "px");
-            
-            g   .attr("transform", "translate(" + (-topLeft[0] + buffer) + "," + (-topLeft[1] + buffer) + ")");
-            
-            circles
-            .attr("cx", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).x; })
-            .attr("cy", function(d) { return projectPoint(d.geometry.coordinates[0], d.geometry.coordinates[1]).y; });
-        };
-    
-        update();
-        map.on("viewreset", update);
-    
 
 	</script>
 
